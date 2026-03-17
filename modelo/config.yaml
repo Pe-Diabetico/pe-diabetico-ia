@@ -1,0 +1,195 @@
+# =============================================================================
+#  PÉ DIABÉTICO IA — ARQUIVO DE CONFIGURAÇÃO CENTRAL
+#  Lido por: modelo/modelo_rf.py  E  app/js/app.js (via fetch)
+#
+#  Altere os valores aqui. Nenhum outro arquivo precisa ser tocado.
+#
+#  SISTEMA DE ZONAS (usado em todas as features de sensor):
+#    verde:    faixa segura — sem alerta
+#    amarelo:  atenção — monitorar de perto
+#    vermelho: risco — alertar profissional
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+#  1. JANELA TEMPORAL
+#     O app agrega leituras brutas do BLE nesta janela antes de gravar no CSV.
+# -----------------------------------------------------------------------------
+janela_horas: 1       # horas de leituras a acumular por snapshot
+
+
+# -----------------------------------------------------------------------------
+#  2. FEATURES DE SENSOR — LIMIARES POR ZONA
+#
+#  Formato de cada feature:
+#    unidade:     string descritiva (só para exibição)
+#    verde:       [ min, max ]   — faixa segura (inclusive)
+#    amarelo:     [ min, max ]   — faixa de atenção (inclusive)
+#    vermelho:    [ min, max ]   — faixa de risco (inclusive)
+#    quanto_maior_pior: true/false
+#      → true  = valores altos são ruins (pressão, PTI, temperatura)
+#      → false = valores baixos também são ruins (umidade tem os dois lados)
+#
+#  Use null para "sem limite" (ex: vermelho_max: null = qualquer valor acima)
+# -----------------------------------------------------------------------------
+
+sensores:
+
+  pressao_maxima_kpa:
+    label: "Pressão Plantar Máxima"
+    unidade: "kPa"
+    # Referência: IWGDF — >= 196 kPa indica risco de lesão tecidual
+    # ~ 2 kgf/cm²
+    verde:    [0,    149]
+    amarelo:  [150,  195]
+    vermelho: [196,  null]
+    quanto_maior_pior: true
+
+  pti_kpa_s:
+    label: "Integral Pressão-Tempo (PTI)"
+    unidade: "kPa·s"
+    # Feature mais preditiva segundo Chauhan (2023).
+    # Escala para janela de 1 hora de uso contínuo.
+    # Ajuste após coletar dados reais do seu grupo de pacientes.
+    verde:    [0,       199999]
+    amarelo:  [200000,  399999]
+    vermelho: [400000,  null]
+    quanto_maior_pior: true
+
+  temperatura_max_c:
+    label: "Temperatura Máxima do Pé"
+    unidade: "°C"
+    # Temperatura absoluta do sensor.
+    # Acima de 33.5°C pode indicar inflamação localizada.
+    verde:    [0,    32.9]
+    amarelo:  [33.0, 33.4]
+    vermelho: [33.5, null]
+    quanto_maior_pior: true
+
+  umidade_pct:
+    label: "Umidade Relativa do Ar"
+    unidade: "%"
+    # ATENÇÃO: esta feature tem risco nos DOIS extremos:
+    #   Abaixo de 40%: pele ressecada → fissuras e rachaduras
+    #   Acima de 60%:  maceração da pele → lesões por excesso de umidade
+    #   40–60%:        faixa segura
+    #
+    # Como o formato de zona único não suporta dois extremos ruins,
+    # o app e o Python calculam esta feature com lógica especial
+    # usando os campos abaixo:
+    zona_especial: true          # sinaliza lógica de dois extremos
+    seguro_min: 40               # abaixo disso → vermelho
+    seguro_max: 60               # acima disso → vermelho
+    atencao_min: 35              # entre atencao_min e seguro_min → amarelo
+    atencao_max: 65              # entre seguro_max e atencao_max → amarelo
+    # Resumo das zonas resultantes:
+    #   < 35%          → vermelho  (pele muito ressecada)
+    #   35% – 39%      → amarelo   (atenção ressecamento)
+    #   40% – 60%      → verde     (faixa ideal)
+    #   61% – 65%      → amarelo   (atenção maceração)
+    #   > 65%          → vermelho  (maceração)
+    unidade: "%"
+    quanto_maior_pior: false     # não se aplica (lógica especial)
+
+
+# -----------------------------------------------------------------------------
+#  3. FEATURES CLÍNICAS — LIMIARES
+#     Usados para calcular o score de risco (target_engine.py)
+#     e para exibir badges no app.
+# -----------------------------------------------------------------------------
+
+clinicos:
+
+  pressao_arterial:
+    label: "Hipertensão (HAS)"
+    tipo: binario   # 0 = não / 1 = sim
+    peso_risco: 1   # pontos adicionados ao score quando presente
+
+  tabagismo:
+    label: "Tabagismo"
+    tipo: binario
+    # Associação estatística p=0.010 — Tavares et al. (2016)
+    peso_risco: 2
+
+  hba1c_pct:
+    label: "Hemoglobina Glicada (HbA1c)"
+    unidade: "%"
+    # Controle glicêmico dos últimos 3 meses
+    verde:    [0,   6.9]
+    amarelo:  [7.0, 7.9]
+    vermelho: [8.0, null]
+    peso_risco_amarelo: 1
+    peso_risco_vermelho: 2
+
+  anos_diabetes:
+    label: "Tempo de Diagnóstico do Diabetes"
+    unidade: "anos"
+    # Após 10 anos, risco de neuropatia aumenta significativamente
+    verde:    [0,  9]
+    amarelo:  [10, 14]
+    vermelho: [15, null]
+    peso_risco_amarelo: 1
+    peso_risco_vermelho: 2
+
+  imc:
+    label: "Índice de Massa Corporal (IMC)"
+    unidade: "kg/m²"
+    # IMC médio do grupo com complicações: 31.8 kg/m²
+    # Influência mecânica (maior pressão plantar) e metabólica
+    verde:    [0,    24.9]
+    amarelo:  [25.0, 29.9]
+    vermelho: [30.0, null]
+    peso_risco_amarelo: 0
+    peso_risco_vermelho: 1
+
+  idade_anos:
+    label: "Idade"
+    unidade: "anos"
+    # Pico de risco entre 60–79 anos — Tavares et al. (2016)
+    verde:    [0,  59]
+    amarelo:  [60, 79]
+    vermelho: [80, null]
+    peso_risco_amarelo: 1
+    peso_risco_vermelho: 1
+
+
+# -----------------------------------------------------------------------------
+#  4. SCORE DE RISCO (target_engine.py)
+#     Soma dos pesos acima. Define o target risco_ulcera no CSV.
+# -----------------------------------------------------------------------------
+
+score:
+  # Pontuação dos sensores (adicionada ao score clínico acima)
+  pressao_amarelo:   1
+  pressao_vermelho:  3
+  pti_amarelo:       1
+  pti_vermelho:      3
+  temperatura_amarelo: 1
+  temperatura_vermelho: 2
+  umidade_fora_faixa: 1   # qualquer zona amarela ou vermelha de umidade
+
+  # Limiar: score total >= este valor → risco_ulcera = 1 no CSV
+  # Aumente para ser mais conservador (menos alarmes)
+  # Diminua para ser mais sensível (mais alertas)
+  limiar_alto_risco: 5
+
+
+# -----------------------------------------------------------------------------
+#  5. HIPERPARÂMETROS DO RANDOM FOREST
+# -----------------------------------------------------------------------------
+
+random_forest:
+  n_estimators:      200     # número de árvores
+  max_depth:         10      # profundidade máxima
+  min_samples_split: 5
+  min_samples_leaf:  3
+  max_features:      "sqrt"
+  class_weight:      "balanced"
+  random_state:      42
+
+treinamento:
+  test_size:         0.2
+  cv_folds:          5
+  caminho_dados:     "data/pacientes.csv"
+  caminho_modelo:    "models/modelo_rf.pkl"
+  caminho_log:       "logs/execucao.log"

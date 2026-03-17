@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#f8f8f6"/>
+  <title>Monitor do Pé</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <div class="dot" id="dot"></div>
+      <div class="header-text">
+        <span class="app-name">Monitor do Pé</span>
+        <span class="app-sub" id="conn-label">Desconectado</span>
+      </div>
+    </div>
+    <button class="btn-connect" id="btn-connect">
+      <svg id="btn-icon" class="btn-svg" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="9" cy="9" r="2.5" fill="currentColor"/>
+        <path d="M9 3.5a5.5 5.5 0 0 1 3.889 9.389M9 3.5a5.5 5.5 0 0 0-3.889 9.389" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M9 .5a8.5 8.5 0 0 1 6.01 14.49M9 .5A8.5 8.5 0 0 0 2.99 14.99" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span id="btn-label">Conectar</span>
+    </button>
+  </header>
+
+  <div class="demo-banner" id="demo-banner">
+    <label class="demo-label">
+      <input type="checkbox" id="chk-demo" checked/>
+      Modo demonstração ativo
+    </label>
+  </div>
+
+  <main>
+
+    <!-- STATUS GERAL -->
+    <section class="card card-status" id="card-status">
+      <div class="status-indicator" id="status-indicator"></div>
+      <div class="status-text">
+        <div class="status-title" id="status-title">Tudo normal</div>
+        <div class="status-sub" id="status-sub">Nenhum alerta no momento</div>
+      </div>
+    </section>
+
+    <!-- TEMPERATURA + UMIDADE -->
+    <section class="card-row">
+
+      <div class="card card-metric" id="card-temp">
+        <div class="metric-label">Temperatura</div>
+        <div class="metric-value" id="val-temp">--</div>
+        <div class="metric-unit">°C</div>
+        <div class="metric-bar-wrap">
+          <div class="metric-bar-track">
+            <div class="metric-bar-fill" id="bar-temp"></div>
+          </div>
+        </div>
+        <div class="metric-hint" id="hint-temp">Aguardando leitura</div>
+      </div>
+
+      <div class="card card-metric" id="card-umid">
+        <div class="metric-label">Umidade</div>
+        <div class="metric-value" id="val-umid">--</div>
+        <div class="metric-unit">%</div>
+        <div class="metric-bar-wrap">
+          <div class="metric-bar-track">
+            <div class="metric-bar-fill" id="bar-umid"></div>
+          </div>
+        </div>
+        <div class="metric-hint" id="hint-umid">Aguardando leitura</div>
+      </div>
+
+    </section>
+
+    <!-- PRESSÃO -->
+    <section class="card card-pressure">
+      <div class="pressure-title">Pressão Plantar</div>
+      <div class="pressure-grid">
+
+        <div class="pres-zone" id="pz-meta1">
+          <div class="pz-label">1º Metatarso</div>
+          <div class="pz-bar-wrap">
+            <div class="pz-bar-track">
+              <div class="pz-bar-fill" id="pfill-meta1"></div>
+            </div>
+          </div>
+          <div class="pz-value" id="pval-meta1">—</div>
+        </div>
+
+        <div class="pres-zone" id="pz-meta5">
+          <div class="pz-label">5º Metatarso</div>
+          <div class="pz-bar-wrap">
+            <div class="pz-bar-track">
+              <div class="pz-bar-fill" id="pfill-meta5"></div>
+            </div>
+          </div>
+          <div class="pz-value" id="pval-meta5">—</div>
+        </div>
+
+        <div class="pres-zone" id="pz-calcaneo">
+          <div class="pz-label">Calcâneo</div>
+          <div class="pz-bar-wrap">
+            <div class="pz-bar-track">
+              <div class="pz-bar-fill" id="pfill-calcaneo"></div>
+            </div>
+          </div>
+          <div class="pz-value" id="pval-calcaneo">—</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MAPA DO PÉ + ALERTAS -->
+    <section class="card-row">
+
+      <div class="card card-foot">
+        <div class="foot-title">Mapa do Pé</div>
+        <div class="foot-wrap">
+          <div class="foot-container">
+            <img src="clean_foot.png" alt="Planta do pé direito" class="foot-img"/>
+
+            <div class="heat-zone" id="zone-meta1" style="left:34%;top:35%">
+              <div class="heat-ring"></div>
+              <span class="heat-label">M1</span>
+            </div>
+
+            <div class="heat-zone" id="zone-meta5" style="left:65%;top:40%">
+              <div class="heat-ring"></div>
+              <span class="heat-label">M5</span>
+            </div>
+
+            <div class="heat-zone" id="zone-calcaneo" style="left:51%;top:87%">
+              <div class="heat-ring"></div>
+              <span class="heat-label">CAL</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="foot-legend">
+          <span class="leg-item leg-ok">Normal</span>
+          <span class="leg-item leg-warn">Atenção</span>
+          <span class="leg-item leg-danger">Alerta</span>
+        </div>
+      </div>
+
+      <div class="card card-alerts">
+        <div class="alerts-header">
+          <span class="alerts-title">Alertas</span>
+          <button class="btn-clear" onclick="clearAlerts()">Limpar</button>
+        </div>
+        <div class="alert-list" id="alert-list">
+          <div class="empty-msg">Nenhum alerta no momento.</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CONFIGURAÇÕES -->
+    <section class="card card-config">
+      <div class="config-title">Limites de Alerta</div>
+      <div class="config-grid">
+
+        <div class="config-item">
+          <label class="config-label">Temperatura máx.</label>
+          <div class="config-input-row">
+            <input type="number" id="thresh-temp" value="34" step="0.5" min="28" max="42" class="config-input"/>
+            <span class="config-unit">°C</span>
+          </div>
+        </div>
+
+        <div class="config-item">
+          <label class="config-label">Umidade máx.</label>
+          <div class="config-input-row">
+            <input type="number" id="thresh-umid" value="80" step="5" min="40" max="100" class="config-input"/>
+            <span class="config-unit">%</span>
+          </div>
+        </div>
+
+        <div class="config-item">
+          <label class="config-label">Pressão máx.</label>
+          <div class="config-input-row">
+            <input type="number" id="thresh-pressure" value="3000" step="200" min="500" max="4095" class="config-input"/>
+            <span class="config-unit">ADC</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="timestamp" id="last-update">—</div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
