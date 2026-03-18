@@ -1,55 +1,70 @@
 /* ============================================================
-   Monitor do Pé
-   Tipografia: Instrument Serif (display) + IBM Plex Sans/Mono
-   Paleta: off-white · grafite · vermelho clínico único
+   Monitor do Pé — Folha de estilos
+   Tipografia: Atkinson Hyperlegible (acessibilidade) +
+               IBM Plex Mono (valores numéricos)
+   Paleta: off-white · grafite · estados clínicos
+   Otimizado para idosos: mínimo 18px corpo, 48px toque
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+/* ── VARIÁVEIS ───────────────────────────────────────────────── */
 :root {
-  --bg:           #f8f8f6;
+  /* Superfícies */
+  --bg:           #f5f6f4;
   --bg-card:      #ffffff;
-  --bg-subtle:    #f2f2ef;
-  --border:       #e4e4e0;
-  --border-mid:   #d0d0cb;
+  --bg-subtle:    #eeeeeb;
+  --border:       #e0e0da;
+  --border-mid:   #c8c8c0;
 
-  --tx-primary:   #1a1a18;
-  --tx-secondary: #6b6b65;
-  --tx-muted:     #a8a8a2;
+  /* Texto */
+  --tx-primary:   #181816;
+  --tx-secondary: #5a5a54;
+  --tx-muted:     #9a9a92;
 
-  /* Acento único — vermelho clínico */
-  --accent:       #c0202f;
+  /* Estado: normal */
+  --ok:           #1e6e40;
+  --ok-bg:        #edf7f2;
+  --ok-border:    #b8dfc8;
 
-  /* Estados clínicos — sem saturação excessiva */
-  --ok:           #2d7a50;
-  --ok-bg:        #f0f7f3;
-  --ok-border:    #c8e8d6;
+  /* Estado: atenção */
+  --warn:         #7a4d00;
+  --warn-bg:      #fdf6e8;
+  --warn-border:  #e0c070;
 
-  --warn:         #8a5c00;
-  --warn-bg:      #fdf8ee;
-  --warn-border:  #e8d49a;
+  /* Estado: alerta */
+  --danger:       #a81820;
+  --danger-bg:    #fdf0f1;
+  --danger-border:#e8b0b4;
 
-  --danger:       #b81a28;
-  --danger-bg:    #fdf2f3;
-  --danger-border:#f0c0c4;
+  /* Raios */
+  --r:     12px;
+  --r-sm:  8px;
 
-  --r:            10px;
-  --r-sm:         6px;
-
-  --sans:  'IBM Plex Sans', system-ui, sans-serif;
-  --serif: 'Instrument Serif', Georgia, serif;
-  --mono:  'IBM Plex Mono', monospace;
+  /* Tipografia */
+  --font: 'Atkinson Hyperlegible', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
 }
 
-/* ── Reset ───────────────────────────────────────────────────── */
+/* ── RESET ───────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+html {
+  /* Base 18px — mínimo recomendado NIA/WCAG para idosos */
+  font-size: 18px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
 
 body {
-  font-family: var(--sans);
+  font-family: var(--font);
   background: var(--bg);
   color: var(--tx-primary);
   min-height: 100dvh;
   padding-bottom: 60px;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
 button { font-family: inherit; cursor: pointer; }
@@ -59,7 +74,7 @@ input  { font-family: inherit; }
 header {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 14px 20px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -71,29 +86,42 @@ header {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
 }
 
-/* Indicador de conexão */
+/* Ponto indicador de conexão */
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--tx-muted);
   flex-shrink: 0;
   transition: background .3s;
 }
-.dot.on  { background: var(--ok); }
-.dot.mid { background: var(--warn); animation: blink 1s infinite; }
+.dot.on  { background: var(--ok);   box-shadow: 0 0 0 3px var(--ok-bg); }
+.dot.mid { background: var(--warn); animation: piscar 1s infinite; }
 .dot.off { background: var(--danger); }
 
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+@keyframes piscar { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-.header-text  { display: flex; flex-direction: column; gap: 1px; }
-.app-name     { font-family: var(--serif); font-size: 18px; color: var(--tx-primary); letter-spacing: -.2px; }
-.app-sub      { font-size: 12px; color: var(--tx-secondary); font-family: var(--mono); }
+.header-text { display: flex; flex-direction: column; gap: 2px; }
 
-/* Botão conectar */
+.app-name {
+  font-size: 1.05rem;   /* ~19px */
+  font-weight: 700;
+  color: var(--tx-primary);
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+
+.app-sub {
+  font-family: var(--mono);
+  font-size: .72rem;    /* ~13px */
+  color: var(--tx-secondary);
+  line-height: 1;
+}
+
+/* Botão conectar — mínimo 48px (WCAG touch target) */
 .btn-connect {
   display: flex;
   align-items: center;
@@ -102,85 +130,85 @@ header {
   color: #fff;
   border: none;
   border-radius: var(--r-sm);
-  padding: 9px 18px;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 12px 20px;
+  font-size: 1rem;      /* 18px */
+  font-weight: 700;
+  min-height: 48px;
   letter-spacing: .01em;
   transition: background .15s, opacity .15s;
+  touch-action: manipulation;
 }
-.btn-connect:active  { opacity: .85; }
+.btn-connect:active    { opacity: .82; }
 .btn-connect.conectado  { background: var(--danger); }
 .btn-connect.conectando { background: var(--warn); }
+.btn-connect:disabled  { opacity: .45; cursor: not-allowed; }
 
-.btn-svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
+.btn-svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* ── DEMO BANNER ─────────────────────────────────────────────── */
 .demo-banner {
   background: var(--warn-bg);
   border-bottom: 1px solid var(--warn-border);
-  padding: 9px 20px;
+  padding: 10px 20px;
 }
 
 .demo-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: .88rem;    /* ~16px */
+  font-weight: 700;
   color: var(--warn);
   cursor: pointer;
   user-select: none;
 }
 .demo-label input {
-  width: 15px;
-  height: 15px;
+  width: 20px;
+  height: 20px;
   accent-color: var(--warn);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
-/* ── MAIN ────────────────────────────────────────────────────── */
+/* ── LAYOUT PRINCIPAL ────────────────────────────────────────── */
 main {
   max-width: 680px;
   margin: 0 auto;
   padding: 20px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-/* ── CARDS ───────────────────────────────────────────────────── */
+/* ── CARD BASE ───────────────────────────────────────────────── */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 18px;
+  padding: 20px;
 }
 
 .card-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
-/* ── STATUS ──────────────────────────────────────────────────── */
+/* ── STATUS GERAL ────────────────────────────────────────────── */
 .card-status {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 18px;
-  border-left: 3px solid var(--ok);
+  padding: 18px 20px;
+  border-left: 4px solid var(--ok);
   transition: border-color .3s, background .3s;
 }
 .card-status.warn   { border-color: var(--warn);   background: var(--warn-bg); }
 .card-status.danger { border-color: var(--danger); background: var(--danger-bg); }
 
-/* Indicador de status — quadrado sólido de cor */
 .status-indicator {
-  width: 12px;
-  height: 36px;
+  width: 4px;
+  height: 44px;
   border-radius: 2px;
   background: var(--ok);
   flex-shrink: 0;
@@ -190,37 +218,39 @@ main {
 .card-status.danger .status-indicator { background: var(--danger); }
 
 .status-title {
-  font-family: var(--serif);
-  font-size: 20px;
+  font-size: 1.25rem;   /* 22px */
+  font-weight: 700;
   color: var(--tx-primary);
   line-height: 1.2;
 }
 .status-sub {
-  font-size: 13px;
+  font-size: .88rem;    /* 16px */
   color: var(--tx-secondary);
-  margin-top: 3px;
+  margin-top: 4px;
   line-height: 1.5;
 }
 
-/* ── MÉTRICAS ────────────────────────────────────────────────── */
+/* ── CARDS DE MÉTRICA (temperatura / umidade) ────────────────── */
 .card-metric {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 16px 14px;
+  gap: 5px;
+  padding: 18px 16px;
 }
 
 .metric-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .06em;
+  font-size: .72rem;    /* 13px — uppercase compensa tamanho */
+  font-weight: 700;
+  letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--tx-secondary);
 }
 
+/* Valor principal — grande para leitura de relance */
 .metric-value {
-  font-family: var(--serif);
-  font-size: 42px;
+  font-family: var(--mono);
+  font-size: 3rem;      /* 54px */
+  font-weight: 500;
   line-height: 1;
   color: var(--tx-primary);
   transition: color .3s;
@@ -232,23 +262,23 @@ main {
 
 .metric-unit {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: .83rem;    /* 15px */
   color: var(--tx-muted);
 }
 
 .metric-bar-wrap { margin: 8px 0 4px; }
 
 .metric-bar-track {
-  height: 3px;
+  height: 5px;
   background: var(--bg-subtle);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .metric-bar-fill {
   height: 100%;
   width: 0%;
-  border-radius: 2px;
+  border-radius: 3px;
   background: var(--ok);
   transition: width .5s ease, background .3s;
 }
@@ -256,46 +286,52 @@ main {
 .metric-bar-fill.danger { background: var(--danger); }
 
 .metric-hint {
-  font-size: 12px;
+  font-size: .77rem;    /* 14px */
   color: var(--tx-muted);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
-/* ── PRESSÃO ─────────────────────────────────────────────────── */
+/* ── PRESSÃO PLANTAR ─────────────────────────────────────────── */
 .pressure-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .06em;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--tx-secondary);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .pressure-grid {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
-.pres-zone { display: flex; flex-direction: column; gap: 5px; }
+.pres-zone {
+  display: grid;
+  grid-template-columns: 130px 1fr 64px;
+  align-items: center;
+  gap: 12px;
+}
 
 .pz-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--tx-secondary);
+  font-size: .94rem;    /* 17px */
+  font-weight: 700;
+  color: var(--tx-primary);
 }
 
+/* Barra mais espessa — mais visível para idosos */
 .pz-bar-track {
-  height: 8px;
+  height: 12px;
   background: var(--bg-subtle);
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
 .pz-bar-fill {
   height: 100%;
   width: 0%;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--tx-muted);
   transition: width .5s ease, background .3s;
 }
@@ -304,36 +340,37 @@ main {
 
 .pz-value {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: .77rem;    /* 14px */
+  font-weight: 500;
   color: var(--tx-muted);
   text-align: right;
+  white-space: nowrap;
 }
 
 /* ── MAPA DO PÉ ──────────────────────────────────────────────── */
 .card-foot {
-  padding: 16px 14px;
+  padding: 18px 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
 .foot-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .06em;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--tx-secondary);
 }
 
-.foot-wrap {
-  display: flex;
-  justify-content: center;
-}
+.foot-wrap { display: flex; justify-content: center; }
 
+/* Container proporcional 2:3 (imagem 1024×1536).
+   As coordenadas % das zonas são relativas a este elemento. */
 .foot-container {
   position: relative;
   width: 100%;
-  max-width: 150px;
+  max-width: 160px;
   aspect-ratio: 2 / 3;
 }
 
@@ -342,9 +379,22 @@ main {
   height: 100%;
   object-fit: contain;
   display: block;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* Zonas de calor */
+/* ── POSICIONAMENTO DOS SENSORES ─────────────────────────────────
+   % relativas ao .foot-container (aspect-ratio 2:3).
+   transform: translate(-50%, -50%) no .heat-zone centraliza
+   o círculo exatamente no ponto anatômico indicado.
+   Para calibrar: abra o devtools, inspecione o container,
+   e ajuste left/top até o círculo coincidir com o sensor físico.
+────────────────────────────────────────────────────────────── */
+.zone-meta1    { left: 34%; top: 33%; }
+.zone-meta5    { left: 70%; top: 38%; }
+.zone-calcaneo { left: 52%; top: 87%; }
+
+/* Base de toda zona de calor */
 .heat-zone {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -352,76 +402,88 @@ main {
   flex-direction: column;
   align-items: center;
   gap: 3px;
+  pointer-events: none;
 }
 
+/* Círculo do sensor — padrão: normal */
 .heat-ring {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 2px solid var(--ok);
-  background: rgba(45, 122, 80, .12);
+  border: 2.5px solid var(--ok);
+  background: rgba(30, 110, 64, .12);
   transition: border-color .4s, background .4s;
 }
 
 .heat-zone.warn .heat-ring {
   border-color: var(--warn);
-  background: rgba(138, 92, 0, .14);
+  background: rgba(122, 77, 0, .14);
+  animation: pulsar-warn 1.4s ease-in-out infinite;
 }
 
 .heat-zone.danger .heat-ring {
   border-color: var(--danger);
-  background: rgba(184, 26, 40, .16);
-  animation: pulse-danger .8s ease-in-out infinite;
+  background: rgba(168, 24, 32, .16);
+  animation: pulsar-danger .85s ease-in-out infinite;
 }
 
-@keyframes pulse-danger {
-  0%,100% { transform: scale(1); }
-  50%      { transform: scale(1.18); }
+@keyframes pulsar-warn {
+  0%,100% { box-shadow: 0 0 0 0 rgba(122,77,0,.30); }
+  50%      { box-shadow: 0 0 0 7px rgba(122,77,0,.0); }
+}
+@keyframes pulsar-danger {
+  0%,100% { box-shadow: 0 0 0 0 rgba(168,24,32,.40); }
+  50%      { box-shadow: 0 0 0 9px rgba(168,24,32,.0); }
 }
 
+/* Rótulo do sensor */
 .heat-label {
   font-family: var(--mono);
-  font-size: 9px;
-  font-weight: 500;
+  font-size: .61rem;    /* 11px — área limitada no mapa */
+  font-weight: 700;
   color: var(--tx-primary);
-  background: rgba(255,255,255,.9);
-  padding: 1px 4px;
+  background: rgba(255, 255, 255, .92);
+  padding: 1px 5px;
   border-radius: 3px;
   letter-spacing: .02em;
+  white-space: nowrap;
 }
 
-/* Legenda */
+/* Legenda do mapa */
 .foot-legend {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .leg-item {
-  font-size: 11px;
-  color: var(--tx-muted);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  font-size: .72rem;    /* 13px */
+  font-weight: 700;
+  color: var(--tx-secondary);
 }
+
 .leg-item::before {
   content: '';
   display: inline-block;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 .leg-ok::before     { background: var(--ok); }
 .leg-warn::before   { background: var(--warn); }
 .leg-danger::before { background: var(--danger); }
 
-/* ── ALERTAS ─────────────────────────────────────────────────── */
+/* ── PAINEL DE ALERTAS ───────────────────────────────────────── */
 .card-alerts {
-  padding: 16px 14px;
+  padding: 18px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .alerts-header {
@@ -431,68 +493,79 @@ main {
 }
 
 .alerts-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .06em;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--tx-secondary);
 }
 
 .btn-clear {
-  font-size: 12px;
+  font-size: .77rem;    /* 14px */
+  font-weight: 700;
   color: var(--tx-muted);
   background: none;
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  padding: 3px 10px;
+  padding: 7px 14px;
+  min-height: 36px;
   transition: color .15s, border-color .15s;
+  touch-action: manipulation;
 }
 .btn-clear:hover { color: var(--tx-secondary); border-color: var(--border-mid); }
 
 .alert-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
   overflow-y: auto;
-  max-height: 200px;
+  max-height: 340px;
 }
+.alert-list::-webkit-scrollbar { width: 3px; }
+.alert-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .alert-item {
-  font-size: 13px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: var(--r-sm);
-  border-left: 2px solid;
+  border-left: 3px solid var(--border-mid);
   line-height: 1.5;
-  animation: slide-in .2s ease;
+  animation: entrar .2s ease;
 }
-.alert-item.warn   { background: var(--warn-bg);   border-color: var(--warn);   color: #5a3c00; }
-.alert-item.danger { background: var(--danger-bg); border-color: var(--danger); color: #7a1018; }
+.alert-item.warn   { background: var(--warn-bg);   border-color: var(--warn);   color: #4e3200; }
+.alert-item.danger { background: var(--danger-bg); border-color: var(--danger); color: #6a0e14; }
 
 .alert-time {
   display: block;
   font-family: var(--mono);
-  font-size: 11px;
-  opacity: .55;
-  margin-top: 2px;
+  font-size: .66rem;    /* 12px */
+  opacity: .6;
+  margin-bottom: 2px;
+}
+
+/* Mensagem de alerta — precisa ser lida com urgência */
+.alert-msg {
+  font-size: .94rem;    /* 17px */
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .empty-msg {
-  font-size: 13px;
+  font-size: .88rem;    /* 16px */
   color: var(--tx-muted);
-  padding: 12px 0;
+  padding: 14px 0;
   text-align: center;
 }
 
-@keyframes slide-in { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+@keyframes entrar { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
 
 /* ── CONFIGURAÇÕES ───────────────────────────────────────────── */
 .config-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .06em;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--tx-secondary);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .config-grid {
@@ -501,52 +574,364 @@ main {
   gap: 16px;
 }
 
-@media (max-width: 480px) { .config-grid { grid-template-columns: 1fr 1fr; } }
+.config-item { display: flex; flex-direction: column; gap: 7px; }
 
-.config-item  { display: flex; flex-direction: column; gap: 6px; }
-.config-label { font-size: 12px; font-weight: 500; color: var(--tx-secondary); }
+.config-label {
+  font-size: .83rem;    /* 15px */
+  font-weight: 700;
+  color: var(--tx-secondary);
+  line-height: 1.3;
+}
 
 .config-input-row {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  padding: 7px 10px;
+  padding: 9px 12px;
   background: var(--bg-subtle);
-  transition: border-color .15s;
+  transition: border-color .15s, background .15s;
+  min-height: 48px;     /* toque confortável */
 }
-.config-input-row:focus-within { border-color: var(--border-mid); background: var(--bg-card); }
+.config-input-row:focus-within {
+  border-color: var(--border-mid);
+  background: var(--bg-card);
+}
 
 .config-input {
   background: none;
   border: none;
   outline: none;
   font-family: var(--mono);
-  font-size: 18px;
+  font-size: 1.22rem;   /* 22px — número fácil de editar */
+  font-weight: 500;
   color: var(--tx-primary);
   width: 100%;
   min-width: 0;
 }
 
-.config-unit { font-size: 12px; color: var(--tx-muted); white-space: nowrap; }
+.config-unit {
+  font-size: .72rem;    /* 13px */
+  font-weight: 700;
+  color: var(--tx-muted);
+  white-space: nowrap;
+}
 
 /* ── TIMESTAMP ───────────────────────────────────────────────── */
 .timestamp {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: .72rem;    /* 13px */
   color: var(--tx-muted);
   text-align: center;
   padding: 4px 0 8px;
 }
 
 /* ── RESPONSIVO ──────────────────────────────────────────────── */
+
+/* Telas muito pequenas: empilha métricas e simplifica pressão */
 @media (max-width: 360px) {
-  .metric-value { font-size: 34px; }
-  .card-row { grid-template-columns: 1fr; }
+  .card-row              { grid-template-columns: 1fr; }
+  .metric-value          { font-size: 2.5rem; }
+  .pres-zone             { grid-template-columns: 1fr; gap: 6px; }
+  .pz-value              { text-align: left; }
+  .config-grid           { grid-template-columns: 1fr 1fr; }
 }
 
+/* Tablet: mais espaço e mapa maior */
 @media (min-width: 600px) {
-  main { padding: 28px 24px; }
-  .foot-container { max-width: 180px; }
+  main                   { padding: 28px 24px; }
+  .foot-container        { max-width: 190px; }
+  .metric-value          { font-size: 3.4rem; }
 }
+
+/* Desktop */
+@media (min-width: 900px) {
+  .foot-container        { max-width: 220px; }
+}/* ── MODAL DE CADASTRO ───────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(24, 24, 22, .55);
+  z-index: 100;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  animation: overlay-in .2s ease;
+}
+.modal-overlay.aberto {
+  display: flex;
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--r) var(--r) 0 0;
+  width: 100%;
+  max-width: 680px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  animation: modal-up .25s ease;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+@keyframes modal-up {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 0;
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tx-primary);
+  letter-spacing: -.01em;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--tx-muted);
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  line-height: 1;
+  transition: color .15s;
+}
+.modal-close:hover { color: var(--tx-primary); }
+
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Linha com dois campos lado a lado */
+.campo-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.campo-linha-binarios {
+  margin-top: 4px;
+}
+
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-label {
+  font-size: .77rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--tx-secondary);
+}
+
+.campo-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  background: var(--bg-subtle);
+  min-height: 48px;
+  transition: border-color .15s, background .15s;
+}
+.campo-input-row:focus-within {
+  border-color: var(--border-mid);
+  background: var(--bg-card);
+}
+
+/* Input de nome sem row wrapper */
+input.campo-input[type="text"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  background: var(--bg-subtle);
+  min-height: 48px;
+  font-size: 1rem;
+  color: var(--tx-primary);
+  outline: none;
+  transition: border-color .15s, background .15s;
+}
+input.campo-input[type="text"]:focus {
+  border-color: var(--border-mid);
+  background: var(--bg-card);
+}
+
+/* Inputs numéricos dentro do row */
+.campo-input-row input.campo-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--tx-primary);
+  width: 100%;
+  min-width: 0;
+}
+
+.campo-unit {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--tx-muted);
+  white-space: nowrap;
+}
+
+/* Toggle sim/não para HAS e tabagismo */
+.campo-grupo-check { justify-content: flex-start; }
+
+.toggle-row { display: flex; }
+
+.toggle-btn {
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-subtle);
+  color: var(--tx-secondary);
+  font-size: .94rem;
+  font-weight: 700;
+  padding: 10px 24px;
+  min-height: 48px;
+  min-width: 100px;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.toggle-btn[aria-pressed="true"] {
+  background: var(--tx-primary);
+  border-color: var(--tx-primary);
+  color: #fff;
+}
+
+.modal-hint {
+  font-size: .77rem;
+  color: var(--tx-muted);
+  line-height: 1.5;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.modal-footer {
+  padding: 0 20px 20px;
+}
+
+.btn-salvar {
+  width: 100%;
+  background: var(--tx-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 52px;
+  transition: opacity .15s;
+  touch-action: manipulation;
+}
+.btn-salvar:active { opacity: .82; }
+
+/* ── BANNER DO PACIENTE ──────────────────────────────────────── */
+
+.paciente-banner {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.paciente-nome {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--tx-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.paciente-editar {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: .77rem;
+  font-weight: 700;
+  color: var(--tx-secondary);
+  padding: 5px 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color .15s;
+}
+.paciente-editar:hover { border-color: var(--border-mid); }
+
+/* ── RODAPÉ DO PROFISSIONAL ──────────────────────────────────── */
+
+.footer-prof {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  padding: 10px 20px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  z-index: 30;
+}
+
+.btn-prof {
+  background: none;
+  border: none;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tx-muted);
+  padding: 6px 12px;
+  transition: color .15s;
+}
+.btn-prof:hover { color: var(--tx-secondary); }
+
+/* ── BOTÃO CSV (dentro do modal) ──────────────────────────────── */
+.btn-csv {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--tx-secondary);
+  min-height: 48px;
+  transition: border-color .15s, color .15s;
+  touch-action: manipulation;
+}
+.btn-csv:hover { border-color: var(--border-mid); color: var(--tx-primary); }

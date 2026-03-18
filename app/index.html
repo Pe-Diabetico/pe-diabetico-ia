@@ -2,17 +2,117 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="theme-color" content="#f8f8f6"/>
   <title>Monitor do Pé</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 
+  <!-- ── MODAL DE CADASTRO DO PROFISSIONAL ─────────────────────
+       Aberto pelo botão discreto no rodapé.
+       Paciente nunca vê nem precisa interagir com isso.
+  ──────────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="modal-cadastro">
+    <div class="modal">
+
+      <div class="modal-header">
+        <span class="modal-title">Dados do Paciente</span>
+        <button class="modal-close" id="btn-modal-fechar" aria-label="Fechar">&#x2715;</button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="campo-grupo">
+          <label class="campo-label" for="pac-nome">Nome</label>
+          <input class="campo-input" id="pac-nome" type="text"
+                 placeholder="Nome completo do paciente" autocomplete="off"/>
+        </div>
+
+        <div class="campo-linha">
+
+          <div class="campo-grupo">
+            <label class="campo-label" for="pac-idade">Idade</label>
+            <div class="campo-input-row">
+              <input class="campo-input" id="pac-idade" type="number"
+                     min="1" max="120" placeholder="-"/>
+              <span class="campo-unit">anos</span>
+            </div>
+          </div>
+
+          <div class="campo-grupo">
+            <label class="campo-label" for="pac-imc">IMC</label>
+            <div class="campo-input-row">
+              <input class="campo-input" id="pac-imc" type="number"
+                     min="10" max="70" step="0.1" placeholder="-"/>
+              <span class="campo-unit">kg/m²</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="campo-linha">
+
+          <div class="campo-grupo">
+            <label class="campo-label" for="pac-anos-dm">Tempo de diabetes</label>
+            <div class="campo-input-row">
+              <input class="campo-input" id="pac-anos-dm" type="number"
+                     min="0" max="80" placeholder="-"/>
+              <span class="campo-unit">anos</span>
+            </div>
+          </div>
+
+          <div class="campo-grupo">
+            <label class="campo-label" for="pac-hba1c">HbA1c</label>
+            <div class="campo-input-row">
+              <input class="campo-input" id="pac-hba1c" type="number"
+                     min="3" max="20" step="0.1" placeholder="-"/>
+              <span class="campo-unit">%</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="campo-linha campo-linha-binarios">
+
+          <div class="campo-grupo campo-grupo-check">
+            <label class="campo-label">Hipertensão (HAS)</label>
+            <div class="toggle-row">
+              <button class="toggle-btn" id="tog-has" data-val="0"
+                      aria-pressed="false">Não</button>
+            </div>
+          </div>
+
+          <div class="campo-grupo campo-grupo-check">
+            <label class="campo-label">Tabagismo</label>
+            <div class="toggle-row">
+              <button class="toggle-btn" id="tog-tabagismo" data-val="0"
+                      aria-pressed="false">Não</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Indicador de campos em branco - campos opcionais não bloqueiam -->
+        <p class="modal-hint">
+          Campos em branco serão preenchidos com valores médios de referência.
+        </p>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-salvar" id="btn-salvar-paciente">Salvar</button>
+        <button class="btn-csv" onclick="baixarCSV()">Baixar CSV da sessão</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── HEADER ──────────────────────────────────────────────── -->
   <header>
     <div class="header-left">
       <div class="dot" id="dot"></div>
@@ -22,15 +122,19 @@
       </div>
     </div>
     <button class="btn-connect" id="btn-connect">
-      <svg id="btn-icon" class="btn-svg" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg id="btn-icon" class="btn-svg" viewBox="0 0 18 18" fill="none"
+           xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <circle cx="9" cy="9" r="2.5" fill="currentColor"/>
-        <path d="M9 3.5a5.5 5.5 0 0 1 3.889 9.389M9 3.5a5.5 5.5 0 0 0-3.889 9.389" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M9 .5a8.5 8.5 0 0 1 6.01 14.49M9 .5A8.5 8.5 0 0 0 2.99 14.99" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M9 3.5a5.5 5.5 0 0 1 3.889 9.389M9 3.5a5.5 5.5 0 0 0-3.889 9.389"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M9 .5a8.5 8.5 0 0 1 6.01 14.49M9 .5A8.5 8.5 0 0 0 2.99 14.99"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <span id="btn-label">Conectar</span>
     </button>
   </header>
 
+  <!-- ── DEMO BANNER ─────────────────────────────────────────── -->
   <div class="demo-banner" id="demo-banner">
     <label class="demo-label">
       <input type="checkbox" id="chk-demo" checked/>
@@ -38,6 +142,16 @@
     </label>
   </div>
 
+  <!-- ── BANNER DO PACIENTE ─────────────────────────────────────
+       Exibido quando há dados clínicos salvos.
+       Mostra o nome do paciente ativo ao profissional.
+  ──────────────────────────────────────────────────────────── -->
+  <div class="paciente-banner" id="paciente-banner" hidden>
+    <span class="paciente-nome" id="paciente-nome">-</span>
+    <button class="paciente-editar" id="btn-editar-paciente">Editar</button>
+  </div>
+
+  <!-- ── MAIN ────────────────────────────────────────────────── -->
   <main>
 
     <!-- STATUS GERAL -->
@@ -90,7 +204,7 @@
               <div class="pz-bar-fill" id="pfill-meta1"></div>
             </div>
           </div>
-          <div class="pz-value" id="pval-meta1">—</div>
+          <div class="pz-value" id="pval-meta1">-</div>
         </div>
 
         <div class="pres-zone" id="pz-meta5">
@@ -100,7 +214,7 @@
               <div class="pz-bar-fill" id="pfill-meta5"></div>
             </div>
           </div>
-          <div class="pz-value" id="pval-meta5">—</div>
+          <div class="pz-value" id="pval-meta5">-</div>
         </div>
 
         <div class="pres-zone" id="pz-calcaneo">
@@ -110,7 +224,7 @@
               <div class="pz-bar-fill" id="pfill-calcaneo"></div>
             </div>
           </div>
-          <div class="pz-value" id="pval-calcaneo">—</div>
+          <div class="pz-value" id="pval-calcaneo">-</div>
         </div>
 
       </div>
@@ -123,19 +237,19 @@
         <div class="foot-title">Mapa do Pé</div>
         <div class="foot-wrap">
           <div class="foot-container">
-            <img src="clean_foot.png" alt="Planta do pé direito" class="foot-img"/>
+            <img src="img/desenho_pe.png" alt="Planta do pé direito" class="foot-img"/>
 
-            <div class="heat-zone" id="zone-meta1" style="left:34%;top:35%">
+            <div class="heat-zone zone-meta1" id="zone-meta1">
               <div class="heat-ring"></div>
               <span class="heat-label">M1</span>
             </div>
 
-            <div class="heat-zone" id="zone-meta5" style="left:65%;top:40%">
+            <div class="heat-zone zone-meta5" id="zone-meta5">
               <div class="heat-ring"></div>
               <span class="heat-label">M5</span>
             </div>
 
-            <div class="heat-zone" id="zone-calcaneo" style="left:51%;top:87%">
+            <div class="heat-zone zone-calcaneo" id="zone-calcaneo">
               <div class="heat-ring"></div>
               <span class="heat-label">CAL</span>
             </div>
@@ -161,15 +275,17 @@
 
     </section>
 
-    <!-- CONFIGURAÇÕES -->
-    <section class="card card-config">
-      <div class="config-title">Limites de Alerta</div>
+    <!-- CONFIGURAÇÕES - visível apenas no modo demonstração -->
+    <section class="card card-config" id="card-config">
+      <div class="config-title">Limites de Alerta (demonstração)</div>
       <div class="config-grid">
 
         <div class="config-item">
           <label class="config-label">Temperatura máx.</label>
           <div class="config-input-row">
-            <input type="number" id="thresh-temp" value="34" step="0.5" min="28" max="42" class="config-input"/>
+            <input type="number" id="thresh-temp" value="33.5" step="0.5"
+                   min="28" max="42" class="config-input"
+                   title="Limiar vermelho: 33.5°C (IWGDF)"/>
             <span class="config-unit">°C</span>
           </div>
         </div>
@@ -177,7 +293,9 @@
         <div class="config-item">
           <label class="config-label">Umidade máx.</label>
           <div class="config-input-row">
-            <input type="number" id="thresh-umid" value="80" step="5" min="40" max="100" class="config-input"/>
+            <input type="number" id="thresh-umid" value="75" step="5"
+                   min="30" max="100" class="config-input"
+                   title="Limiar maceração: > 75% (Kosaji 2025)"/>
             <span class="config-unit">%</span>
           </div>
         </div>
@@ -185,18 +303,30 @@
         <div class="config-item">
           <label class="config-label">Pressão máx.</label>
           <div class="config-input-row">
-            <input type="number" id="thresh-pressure" value="3000" step="200" min="500" max="4095" class="config-input"/>
-            <span class="config-unit">ADC</span>
+            <input type="number" id="thresh-pressure" value="196" step="10"
+                   min="50" max="600" class="config-input"
+                   title="Limiar IWGDF: 196 kPa (~2 kgf/cm²)"/>
+            <span class="config-unit">kPa</span>
           </div>
         </div>
 
       </div>
     </section>
 
-    <div class="timestamp" id="last-update">—</div>
+    <div class="timestamp" id="last-update">-</div>
 
   </main>
 
-  <script src="app.js"></script>
+  <!-- ── RODAPÉ DO PROFISSIONAL ─────────────────────────────────
+       Botão discreto, fora do fluxo visual do paciente.
+       Posicionado no rodapé para não chamar atenção.
+  ──────────────────────────────────────────────────────────── -->
+  <footer class="footer-prof">
+    <button class="btn-prof" id="btn-abrir-cadastro">
+      Área do Profissional
+    </button>
+  </footer>
+
+  <script src="js/app.js"></script>
 </body>
 </html>

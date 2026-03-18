@@ -7,7 +7,7 @@
  *    Toda leitura BLE é acumulada em memória e salva no localStorage.
  *    Garante que dados não se percam em caso de refresh acidental.
  *
- * B) File System Access API (Chrome Desktop/Android — opcional)
+ * B) File System Access API (Desktop/Android — opcional)
  *    Se o browser suportar, o usuário escolhe um arquivo CSV uma vez.
  *    Cada leitura BLE é APPENDADA automaticamente ao arquivo em disco.
  *    Fallback gracioso: se não suportar, usa só o localStorage.
