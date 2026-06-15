@@ -157,3 +157,6 @@ random_forest:
   max_features:     "sqrt"
   class_weight:     "balanced"
   random_state:     42
+
+
+  

@@ -1,7 +1,7 @@
 # pe-diabetico-ia
 
 Monitor BLE de pressão plantar com predição de risco de úlcera em pé diabético.
-O modelo Random Forest roda diretamente no ESP32 — sem servidor, sem nuvem.
+O modelo Random Forest roda diretamente no ESP32 - sem servidor, sem nuvem.
 
 Demo: [pe-diabetico-ia.netlify.app](https://pe-diabetico-ia.netlify.app)
 
@@ -138,7 +138,7 @@ sensores:
     atencao_max: 75  # acima:  alerta maceracao (Kosaji, 2025)
 
 random_forest:
-  n_estimators: 20   # arvores — manter baixo para caber no ESP32
+  n_estimators: 20   # arvores - manter baixo para caber no ESP32
   max_depth:    10
 ```
 
@@ -151,15 +151,15 @@ random_forest:
 | Browser | Chrome ou Edge (Web Bluetooth) |
 | Python | 3.9+ |
 | Arduino IDE | 2.x com core ESP32 |
-| iOS | App Bluefy (App Store) — Safari nao suporta Web Bluetooth |
+| iOS | App Bluefy (App Store) - Safari nao suporta Web Bluetooth |
 
 ---
 
 ## Referencias
 
-- IWGDF Guidelines (2023) — limiares de pressao plantar e temperatura
-- Chauhan (2023) — Random Forest para classificacao de risco plantar
-- Castillo-Morquecho (2024) — HbA1c e IMC como preditores
-- Tavares et al. (2016) — prevalencias clinicas (HAS, tabagismo, anos de DM)
-- Lourenco (2018) — microclima do calcado
-- Kosaji et al. (2025) — maceracao e ressecamento plantar
+- IWGDF Guidelines (2023) - limiares de pressao plantar e temperatura
+- Chauhan (2023) - Random Forest para classificacao de risco plantar
+- Castillo-Morquecho (2024) - HbA1c e IMC como preditores
+- Tavares et al. (2016) - prevalencias clinicas (HAS, tabagismo, anos de DM)
+- Lourenco (2018) - microclima do calcado
+- Kosaji et al. (2025) - maceracao e ressecamento plantar
