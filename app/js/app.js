@@ -16,6 +16,8 @@ let conectado   = false;
 let demoTimer   = null;
 let demoTick    = 0;
 const alertLog  = [];
+const alertLastShown = new Map();
+const ALERT_COOLDOWN_MS = 15000;
 
 // Dados clínicos do paciente ativo (carregados do localStorage)
 let paciente = {
@@ -396,11 +398,15 @@ function setStatus(zonas) {
 }
 
 // ── ALERTAS ───────────────────────────────────────────────────
-function addAlerta(msg, nivel) {
-  const agora  = Date.now();
-  const ultimo = alertLog[alertLog.length - 1];
-  if (ultimo && ultimo.msg === msg && agora - ultimo.ts < 10000) return;
-  alertLog.push({ msg, ts: agora });
+function addAlerta(msg, nivel, chave = msg) {
+  const agora = Date.now();
+  const chaveAlerta = `${chave}:${nivel}`;
+  const ultimoEnvio = alertLastShown.get(chaveAlerta) || 0;
+
+  if (agora - ultimoEnvio < ALERT_COOLDOWN_MS) return;
+
+  alertLastShown.set(chaveAlerta, agora);
+  alertLog.push({ msg, ts: agora, chave: chaveAlerta });
 
   const hora = new Date().toLocaleTimeString('pt-BR', {
     hour: '2-digit', minute: '2-digit', second: '2-digit',
@@ -418,6 +424,7 @@ function addAlerta(msg, nivel) {
 function clearAlerts() {
   el.alertList.innerHTML = '<div class="empty-msg">Nenhum alerta no momento.</div>';
   alertLog.length = 0;
+  alertLastShown.clear();
 }
 window.clearAlerts = clearAlerts;
 
@@ -452,11 +459,11 @@ function processar(d) {
   setMapa(zM1, zM5, zCal);
   setStatus([zT, zU, zM1, zM5, zCal]);
 
-  if (zT !== 'ok') addAlerta(`Temperatura: ${(d.temp ?? 0).toFixed(1)} °C`, zT);
-  if (zU !== 'ok') addAlerta(`Umidade: ${(d.umid ?? 0).toFixed(0)} %`, zU);
-  if (zM1  === 'danger') addAlerta(`Pressão elevada - 1º Metatarso: ${kpaM1.toFixed(0)} kPa`, 'danger');
-  if (zM5  === 'danger') addAlerta(`Pressão elevada - 5º Metatarso: ${kpaM5.toFixed(0)} kPa`, 'danger');
-  if (zCal === 'danger') addAlerta(`Pressão elevada - Calcâneo: ${kpaCal.toFixed(0)} kPa`, 'danger');
+  if (zT !== 'ok') addAlerta(`Temperatura: ${(d.temp ?? 0).toFixed(1)} °C`, zT, 'temperatura');
+  if (zU !== 'ok') addAlerta(`Umidade: ${(d.umid ?? 0).toFixed(0)} %`, zU, 'umidade');
+  if (zM1  === 'danger') addAlerta(`Pressão elevada - 1º Metatarso: ${kpaM1.toFixed(0)} kPa`, 'danger', 'pressao-meta1');
+  if (zM5  === 'danger') addAlerta(`Pressão elevada - 5º Metatarso: ${kpaM5.toFixed(0)} kPa`, 'danger', 'pressao-meta5');
+  if (zCal === 'danger') addAlerta(`Pressão elevada - Calcâneo: ${kpaCal.toFixed(0)} kPa`, 'danger', 'pressao-calcaneo');
 
   el.lastUpdate.textContent = `Atualizado às ${new Date().toLocaleTimeString('pt-BR')}`;
 
