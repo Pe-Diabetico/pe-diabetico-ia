@@ -277,7 +277,7 @@ const LIM = {
   umidSegMin:   40,    // < 40% → atenção ressecamento
   umidSegMax:   60,    // > 60% → atenção maceração
   umidAteMin:   30,    // < 30% → alerta ressecamento grave
-  umidAteMax:   75,    // > 75% → alerta maceração
+  umidAteMax:   80,    // > 75% → alerta maceração
 };
 
 // No modo demo os inputs de configuração ficam visíveis e ajustam
