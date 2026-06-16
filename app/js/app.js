@@ -13,8 +13,6 @@ let bleDevice   = null;
 let bleChar     = null;
 let bleCharWrite = null;
 let conectado   = false;
-let demoTimer   = null;
-let demoTick    = 0;
 const alertLog  = [];
 const alertLastShown = new Map();
 const ALERT_COOLDOWN_MS = 15000;
@@ -42,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     connLabel:    $('conn-label'),
     btnConnect:   $('btn-connect'),
     btnLabel:     $('btn-label'),
-    chkDemo:      $('chk-demo'),
     cardStatus:   $('card-status'),
     statusTitle:  $('status-title'),
     statusSub:    $('status-sub'),
@@ -74,15 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     else           conectarBLE();
   });
 
-  $('chk-demo').addEventListener('change', e => {
-    if (e.target.checked) iniciarDemo();
-    else                  pararDemo();
-    atualizarCardConfig();
-  });
-
-  // Mostra card de configurações só no modo demo
-  atualizarCardConfig();
-
   // ── Eventos do modal de cadastro
   $('btn-abrir-cadastro').addEventListener('click', abrirModal);
   $('btn-editar-paciente').addEventListener('click', abrirModal);
@@ -100,9 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Carrega paciente salvo
   carregarPaciente();
-
-  // ── Inicia demo
-  if ($('chk-demo').checked) iniciarDemo();
 });
 
 // ── CADASTRO DO PACIENTE ──────────────────────────────────────
@@ -204,9 +189,10 @@ const CSV_CABECALHO =
   'kpa_calcaneo,kpa_meta1,kpa_meta5,temp,umid,risco_ulcera,risco_prob';
 
 function registrarLeitura(d) {
-  // d.risco vem do ESP32 quando conectado ao hardware real (0 ou 1).
-  // No modo demo esse campo não existe - fica em branco no CSV,
-  // pois o model.h não está rodando no browser.
+  const adcM1  = d.adc_m1  ?? d.meta1    ?? 0;
+  const adcM5  = d.adc_m5  ?? d.meta5    ?? 0;
+  const adcCal = d.adc_cal ?? d.calcaneo ?? 0;
+
   _leituras.push({
     ts:          new Date().toISOString(),
     nome:        paciente.nome      || '',
@@ -216,13 +202,13 @@ function registrarLeitura(d) {
     hba1c:       paciente.hba1c     ?? '',
     has:         paciente.has,
     tabagismo:   paciente.tabagismo,
-    kpa_cal:     d.kpa_cal  ?? (d.adc_cal  ? adcParaKpa(d.adc_cal)  : 0),
-    kpa_m1:      d.kpa_m1   ?? (d.adc_m1   ? adcParaKpa(d.adc_m1)   : 0),
-    kpa_m5:      d.kpa_m5   ?? (d.adc_m5   ? adcParaKpa(d.adc_m5)   : 0),
-    temp:        d.temp      ?? '',
-    umid:        d.umid      ?? '',
-    risco:       d.risco     ?? '',       // 0 ou 1 - resultado do model.h no ESP32
-    risco_prob:  d.risco_prob ?? '',      // probabilidade em % (ex: 87.3)
+    kpa_cal:     d.kpa_calcaneo ?? (adcCal ? adcParaKpa(adcCal) : 0),
+    kpa_m1:      d.kpa_meta1    ?? (adcM1  ? adcParaKpa(adcM1)  : 0),
+    kpa_m5:      d.kpa_meta5    ?? (adcM5  ? adcParaKpa(adcM5)  : 0),
+    temp:        d.temp          ?? '',
+    umid:        d.umid          ?? '',
+    risco:       d.risco         ?? '',
+    risco_prob:  d.risco_prob    ?? '',
   });
 }
 
@@ -238,7 +224,7 @@ function baixarCSV() {
   const linhas = _leituras.map(l =>
     [l.ts, `"${l.nome}"`, l.idade, l.imc, l.anos_dm, l.hba1c,
      l.has, l.tabagismo, l.kpa_cal, l.kpa_m1, l.kpa_m5,
-     l.temp, l.umid, l.risco].join(',')
+     l.temp, l.umid, l.risco, l.risco_prob].join(',')
   );
   const blob = new Blob(
     [CSV_CABECALHO + '\n' + linhas.join('\n')],
@@ -255,17 +241,8 @@ function baixarCSV() {
 // Expõe para o botão do modal
 window.baixarCSV = baixarCSV;
 
-// ── VISIBILIDADE DO CARD DE CONFIGURAÇÕES ────────────────────
-function atualizarCardConfig() {
-  const cardConfig = $('card-config');
-  if (!cardConfig) return;
-  const emDemo = $('chk-demo') && $('chk-demo').checked;
-  cardConfig.style.display = emDemo ? '' : 'none';
-}
-
 // ── LIMIARES ─────────────────────────────────────────────────
 // Valores fixos do config.yaml - referência clínica (IWGDF / literatura)
-// Usados sempre, exceto nos inputs do modo demo que sobrescrevem temp e umid.
 const LIM = {
   // Pressão (kPa) - IWGDF / Borges (2023)
   presVermelho: 196,   // >= 196 kPa → alerta
@@ -282,58 +259,21 @@ const LIM = {
   umidAteMax:   90,    // >= 90% → alerta maceração
 };
 
-// No modo demo os inputs de configuração ficam visíveis e ajustam
-// apenas os limiares de demonstração - não alteram os valores clínicos reais.
-function limDemo() {
-  return {
-    tempMax: parseFloat($('thresh-temp').value)     || LIM.tempVermelho,
-    umidMax: parseFloat($('thresh-umid').value)     || LIM.umidAteMax,
-    presMax: parseFloat($('thresh-pressure').value) || LIM.presVermelho, // kPa
-  };
-}
-
-function estaEmDemo() {
-  return $('chk-demo') && $('chk-demo').checked;
-}
-
 // ── CLASSIFICAÇÃO DE ZONA ─────────────────────────────────────
 
 function zonaTemp(t) {
-  if (estaEmDemo()) {
-    // Demo: usa os inputs configuráveis da tela
-    const max = limDemo().tempMax;
-    if (t >= max)         return 'danger';
-    if (t >= max * 0.95)  return 'warn';
-    return 'ok';
-  }
-  // Real: limiares clínicos do config.yaml
   if (t >= LIM.tempVermelho) return 'danger';
   if (t >= LIM.tempAmarelo)  return 'warn';
   return 'ok';
 }
 
 function zonaUmid(u) {
-  if (estaEmDemo()) {
-    const { umidMax } = limDemo();
-    if (u > umidMax || u < LIM.umidAteMin)          return 'danger';
-    if (u > umidMax * 0.92 || u < LIM.umidSegMin)   return 'warn';
-    return 'ok';
-  }
-  // Real: limiares clínicos do config.yaml (dois extremos)
-  if (u > LIM.umidAteMax || u < LIM.umidAteMin) return 'danger';
-  if (u > LIM.umidSegMax  || u < LIM.umidSegMin) return 'warn';
+  if (u >= LIM.umidAteMax || u <= LIM.umidAteMin) return 'danger';
+  if (u >= LIM.umidSegMax  || u <= LIM.umidSegMin) return 'warn';
   return 'ok';
 }
 
 function zonaPres(kpa) {
-  // No modo demo usa o limiar do input configurável (em kPa)
-  if (estaEmDemo()) {
-    const max = limDemo().presMax;
-    if (kpa >= max)         return 'danger';
-    if (kpa >= max * 0.80)  return 'warn';
-    return 'ok';
-  }
-  // Modo real: limiares clínicos do config.yaml (IWGDF / Borges 2023)
   if (kpa >= LIM.presVermelho) return 'danger';
   if (kpa >= LIM.presAmarelo)  return 'warn';
   return 'ok';
@@ -471,24 +411,6 @@ function processar(d) {
   registrarLeitura(d);
 }
 
-// ── MODO DEMONSTRAÇÃO ─────────────────────────────────────────
-function demoStep() {
-  demoTick++;
-  const t = demoTick / 10;
-  const temp    = 31 + Math.sin(t * 0.7) * 2.5 + (demoTick % 40 === 0 ? 3.8 : 0);
-  const umid    = 58 + Math.sin(t * 0.4) * 18  + (demoTick % 55 === 0 ? 24  : 0);
-  const base    = 1800 + Math.sin(t * 1.1) * 600;
-  const adc_m1  = Math.round(Math.min(base + Math.random() * 200, 4095));
-  const adc_m5  = Math.round(Math.min(base * 0.8 + Math.random() * 150, 4095));
-  const adc_cal = Math.round(Math.min(
-    base * 1.1 + (demoTick % 30 === 0 ? 1300 : 0) + Math.random() * 100, 4095
-  ));
-  processar({ temp, umid, adc_m1, adc_m5, adc_cal });
-}
-
-function iniciarDemo() { if (!demoTimer) demoTimer = setInterval(demoStep, 1000); }
-function pararDemo()   { clearInterval(demoTimer); demoTimer = null; }
-
 // ── BLE ───────────────────────────────────────────────────────
 async function conectarBLE() {
   if (!navigator.bluetooth) {
@@ -521,9 +443,6 @@ async function conectarBLE() {
 
     conectado = true;
     setBLEStatus('conectado', bleDevice.name || 'MonitorPlantar');
-
-    $('chk-demo').checked = false;
-    pararDemo();
 
     // Envia dados clínicos ao conectar
     if (bleCharWrite) enviarDadosClinicos();

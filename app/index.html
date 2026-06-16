@@ -134,14 +134,6 @@
     </button>
   </header>
 
-  <!-- ── DEMO BANNER ─────────────────────────────────────────── -->
-  <div class="demo-banner" id="demo-banner">
-    <label class="demo-label">
-      <input type="checkbox" id="chk-demo" checked/>
-      Modo demonstração ativo
-    </label>
-  </div>
-
   <!-- ── BANNER DO PACIENTE ─────────────────────────────────────
        Exibido quando há dados clínicos salvos.
        Mostra o nome do paciente ativo ao profissional.
@@ -273,44 +265,6 @@
         </div>
       </div>
 
-    </section>
-
-    <!-- CONFIGURAÇÕES - visível apenas no modo demonstração -->
-    <section class="card card-config" id="card-config">
-      <div class="config-title">Limites de Alerta (demonstração)</div>
-      <div class="config-grid">
-
-        <div class="config-item">
-          <label class="config-label">Temperatura máx.</label>
-          <div class="config-input-row">
-            <input type="number" id="thresh-temp" value="33.5" step="0.5"
-                   min="28" max="42" class="config-input"
-                   title="Limiar vermelho: 33.5°C (IWGDF)"/>
-            <span class="config-unit">°C</span>
-          </div>
-        </div>
-
-        <div class="config-item">
-          <label class="config-label">Umidade máx.</label>
-          <div class="config-input-row">
-            <input type="number" id="thresh-umid" value="75" step="5"
-                   min="30" max="100" class="config-input"
-                   title="Limiar maceração: > 75% (Kosaji 2025)"/>
-            <span class="config-unit">%</span>
-          </div>
-        </div>
-
-        <div class="config-item">
-          <label class="config-label">Pressão máx.</label>
-          <div class="config-input-row">
-            <input type="number" id="thresh-pressure" value="196" step="10"
-                   min="50" max="600" class="config-input"
-                   title="Limiar IWGDF: 196 kPa (~2 kgf/cm²)"/>
-            <span class="config-unit">kPa</span>
-          </div>
-        </div>
-
-      </div>
     </section>
 
     <div class="timestamp" id="last-update">-</div>
