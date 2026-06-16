@@ -277,9 +277,9 @@ const LIM = {
 
   // Umidade dentro do calçado (%) - Lourenço (2018) / Kosaji (2025)
   umidSegMin:   40,    // < 40% → atenção ressecamento
-  umidSegMax:   60,    // > 60% → atenção maceração
+  umidSegMax:   80,    // >= 80% → atenção maceração
   umidAteMin:   30,    // < 30% → alerta ressecamento grave
-  umidAteMax:   80,    // > 75% → alerta maceração
+  umidAteMax:   90,    // >= 90% → alerta maceração
 };
 
 // No modo demo os inputs de configuração ficam visíveis e ajustam
